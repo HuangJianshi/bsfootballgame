@@ -39,7 +39,6 @@ from .soccer_framework import (
     SoccerConfig,
     PlayContext,
 )
-from .soccer_framework.ros_adapter import SoccerRosAdapter
 from .tactics import (
     KickHysteresis,
     MotionController,
@@ -244,6 +243,7 @@ class SoccerTeamRuntime(TeamCommandExecutor):
         self.kit = SoccerKit(self.config)
         self.playbook: Playbook = PLAYBOOKS.create_default(self.kit)
         from .soccer_framework.robot import TeamRobotManager
+        from .soccer_framework.ros_adapter import SoccerRosAdapter
 
         self.robot_manager = TeamRobotManager(
             self.config,

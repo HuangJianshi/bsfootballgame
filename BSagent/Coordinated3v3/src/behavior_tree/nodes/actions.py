@@ -228,8 +228,6 @@ class CommitTeamCommands(py_trees.behaviour.Behaviour):
         if not isinstance(context, PlayContext) or now is None:
             return py_trees.common.Status.FAILURE
 
-        safety_active = bool(self.blackboard.read(BlackboardKeys.SAFETY_ACTIVE))
-
         commands: dict[int, RobotCommand] = {}
         for player_id in self._kit.config.player_ids:
             cmd = self.blackboard.read(cmd_key(player_id))
@@ -271,7 +269,13 @@ class TriggerGetUp(py_trees.behaviour.Behaviour):
     def update(self) -> py_trees.common.Status:
         services = self._kit.robot_services()
         now = self.blackboard.read(BlackboardKeys.NOW)
-        if services is not None and now is not None:
+        context = self.blackboard.read(BlackboardKeys.PLAY_CONTEXT)
+        game = context.game if isinstance(context, PlayContext) else None
+        if (
+            services is not None and now is not None
+            and not self.blackboard.read(BlackboardKeys.SAFETY_ACTIVE)
+            and game is not None and self._kit.is_player_allowed(game, self._player_id)
+        ):
             services.trigger_get_up(self._player_id, now)
         return py_trees.common.Status.SUCCESS
 

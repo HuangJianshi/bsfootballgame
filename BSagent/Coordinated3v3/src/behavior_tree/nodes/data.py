@@ -14,6 +14,7 @@ To add a new global input, add a ``_DataLeaf`` subclass and mount it in the Data
 from __future__ import annotations
 
 from collections.abc import Callable
+import math
 from typing import TYPE_CHECKING
 
 import py_trees
@@ -109,8 +110,10 @@ class UpdateRecentBall(_DataLeaf):
         now = self.blackboard.read(BlackboardKeys.NOW)
         if not isinstance(context, PlayContext) or now is None:
             return py_trees.common.Status.SUCCESS
-        if context.ball is not None and not context.ball.is_recent(
-            now, _BALL_STALE_SEC
+        ball = context.ball
+        if ball is not None and (
+            not ball.is_recent(now, _BALL_STALE_SEC)
+            or not (math.isfinite(ball.x) and math.isfinite(ball.y))
         ):
             context.ball = None
         return py_trees.common.Status.SUCCESS
